@@ -55,7 +55,7 @@ public class Main extends Application{
 	TextArea textEditor;
 	ImageView topImageView, bottomImageView;
 	Enumeration<? extends ZipEntry> entries;
-	Image originalImage, userInputImage;
+	Image originalImage, userInputImage, defaultReplacementImage;
 	BorderPane fileViewer;
 	
 	@Override
@@ -113,8 +113,13 @@ public class Main extends Application{
 		textEditor = new TextArea("Text file will be loaded here");
 		fileViewer = new BorderPane();
 		fileViewer.setCenter(textEditor);
+		defaultReplacementImage = new Image(new File("assets/replacement image.png").toURI().toString());
+		topImageView = new ImageView(defaultReplacementImage);
+		bottomImageView = new ImageView(defaultReplacementImage);
 		imagesPane = new SplitPane();
+		imagesPane.getItems().addAll(null, null);
 		imagesPane.setOrientation(Orientation.VERTICAL);
+		imagesPane.setStyle("-fx-border-color:black; -fx-background-color: gray;");
 		//fileEditor.getChildren().addAll(textEditor);
 		//add nodes to mainPane
 		mainPane.getItems().addAll(apkBrowser, fileViewer);
@@ -242,11 +247,16 @@ public class Main extends Application{
 					entryPath.contains(".gif") ||
 					entryPath.contains(".GIF")){
 				System.out.println("File at " + entryPath + " is an image!");
+				//open image file
 				originalImage = new Image(editorInputStream);
-				topImageView = new ImageView(originalImage);
-				bottomImageView = topImageView;
-				//TODO remove children from pane
-				imagesPane.getItems().addAll(topImageView, bottomImageView);
+				//put into top imageview
+				topImageView.setImage(originalImage);
+				//set bottom imageview to replacement image
+				bottomImageView.setImage(defaultReplacementImage);
+				//put into pane
+				imagesPane.getItems().set(0, topImageView);
+				imagesPane.getItems().set(1, bottomImageView);
+				imagesPane.setDividerPosition(0, 0.5);
 				fileViewer.setCenter(imagesPane);
 			}
 			else{
