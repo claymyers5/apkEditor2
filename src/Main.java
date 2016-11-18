@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.file.FileSystems;
 import java.util.Enumeration;
 import java.util.Stack;
 import java.util.TreeMap;
@@ -11,6 +12,8 @@ import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.io.IOUtils;
+
+import com.sun.org.apache.xml.internal.serializer.Encodings;
 
 import javafx.application.*;
 import javafx.beans.value.ChangeListener;
@@ -237,15 +240,25 @@ public class Main extends Application{
 	}
 	
 	private void saveText(){
+		//get text from textfield
+		String text = textEditor.getText();
 		try {
-			ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(currentlyOpenFilePath));
-			//TODO save file...
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			//generate encoded text file
+			File openFile = new File(currentlyOpenFilePath);
+			if (!openFile.exists()) openFile.createNewFile();
+			OutputStreamWriter output = new OutputStreamWriter(new FileOutputStream(currentlyOpenFilePath), "UTF-8");
+			output.write(text);
+			output.flush();
+			output.close();
+			System.out.println("Text file written, copying into zip");
+			//copy into zip
+			
+		} catch (Exception e){
 			e.printStackTrace();
 		}
 	}
 	
+	boolean textFileOpen;
 	private void openFileInEditor(String entryPath){
 		currentlyOpenFilePath = entryPath;
 		try {
@@ -271,13 +284,19 @@ public class Main extends Application{
 				imagesPane.getItems().set(1, bottomImageView);
 				imagesPane.setDividerPosition(0, 0.5);
 				fileViewer.setCenter(imagesPane);
+				textFileOpen = false;
 			}
 			else{
+				if (textFileOpen){
+					//TODO make warning dialogue and choose whether or not to save
+					saveText();
+				}
 				StringWriter writer = new StringWriter();
 				IOUtils.copy(editorInputStream, writer, "UTF-8");
 				String output = writer.toString();
 				textEditor.setText(output);
 				fileViewer.setCenter(textEditor);
+				textFileOpen =  true;
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
