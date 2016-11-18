@@ -5,6 +5,7 @@ import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -57,6 +58,7 @@ public class Main extends Application{
 	Enumeration<? extends ZipEntry> entries;
 	Image originalImage, userInputImage, defaultReplacementImage;
 	BorderPane fileViewer;
+	String currentlyOpenFilePath;
 	
 	@Override
 	public void start(Stage mainStage) throws Exception {
@@ -234,7 +236,18 @@ public class Main extends Application{
 		keystoreChooser.showOpenDialog(mainStage);
 	}
 	
+	private void saveText(){
+		try {
+			ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(currentlyOpenFilePath));
+			//TODO save file...
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	private void openFileInEditor(String entryPath){
+		currentlyOpenFilePath = entryPath;
 		try {
 			System.out.println("Attempting to open file named " + entryPath);
 			editorInputStream = apk.getInputStream(apk.getEntry(entryPath));
